@@ -23,7 +23,12 @@ export const test = web3Test.extend<DappFixtures>({
 
   swapPage: async ({ web3Page, adapter }, use) => {
     // `web3Page` garantiza que el provider se inyecta antes de navegar.
-    await use(new SwapPage(web3Page.page, adapter));
+    const swapPage = new SwapPage(web3Page.page, adapter);
+    await use(swapPage);
+    // Invariante estructural (README 'Errores silenciosos'): ningún test @e2e
+    // termina con errores no controlados de la DApp callados; la aserción deja
+    // de ser opt-in por spec.
+    swapPage.expectNoPageErrors();
   },
 });
 

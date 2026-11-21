@@ -7,6 +7,7 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
 import type { DexAdapter } from '../domain/adapters/dex-adapter';
+import { sanitizePageDerivedText } from '../utils/sanitizeText';
 
 export interface PageDiagnostics {
   readonly url: string;
@@ -35,11 +36,11 @@ export class BasePage {
   ) {
     page.on('console', (message) => {
       if (message.type() === 'error') {
-        this.consoleErrors.push(message.text());
+        this.consoleErrors.push(sanitizePageDerivedText(message.text()));
       }
     });
     page.on('pageerror', (error) => {
-      this.pageErrors.push(error.message);
+      this.pageErrors.push(sanitizePageDerivedText(error.message));
     });
   }
 

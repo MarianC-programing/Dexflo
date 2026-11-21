@@ -17,6 +17,7 @@
 import { test as base, type Page } from '@playwright/test';
 
 import { MOCK_ADDRESS } from '../utils/mockData';
+import { sanitizePageDerivedText } from '../utils/sanitizeText';
 import { injectEip1193Provider, type Eip1193MockBootstrap, type WalletMockState } from './eip1193';
 import { connectedWallet, createBootstrap } from './walletScenarios';
 
@@ -76,8 +77,8 @@ export function buildWeb3TestPage(page: Page, bootstrap: Eip1193MockBootstrap): 
         requestArgs(method, params),
       ),
 
-    requestCapturingError: async (method, params) =>
-      await page.evaluate(
+    requestCapturingError: async (method, params) => {
+      const result = await page.evaluate(
         async (args) => {
           const provider = window.ethereum;
           if (!provider) {
@@ -87,15 +88,24 @@ export function buildWeb3TestPage(page: Page, bootstrap: Eip1193MockBootstrap): 
             await provider.request({ method: args.method, params: args.params });
             return null;
           } catch (caught) {
-            const caughtError = caught as { code?: number; message?: string };
+            const caughtError = caught as { code?: unknown; message?: unknown };
             return {
-              code: caughtError.code ?? -1,
-              message: caughtError.message ?? String(caught),
+              code: typeof caughtError.code === 'number' ? caughtError.code : -1,
+              message:
+                typeof caughtError.message === 'string' ? caughtError.message : String(caught),
             };
           }
         },
         requestArgs(method, params),
-      ),
+      );
+      if (result === null) return null;
+      // Sanitización en Node (el evaluate corre en el navegador y no tiene
+      // acceso a módulos importados): sin ANSI, sin bytes de control, cota dura.
+      return {
+        code: result.code,
+        message: sanitizePageDerivedText(result.message),
+      };
+    },
 
     configureWallet: async (patch): Promise<void> => {
       await page.evaluate((patchPayload) => {

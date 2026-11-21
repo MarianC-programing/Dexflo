@@ -26,12 +26,14 @@ export interface TransactionSummary {
 }
 
 function summarizeReceipt(receipt: TransactionReceipt): TransactionSummary {
-  const feeWei = receipt.gasUsed * receipt.effectiveGasPrice;
+  const gasUsed = receipt.gasUsed;
+  const effectiveGasPrice = receipt.effectiveGasPrice;
+  const feeWei = gasUsed * effectiveGasPrice;
   return {
     transactionHash: receipt.transactionHash,
     status: receipt.status === 'success' ? 'success' : 'reverted',
     blockNumber: Number(receipt.blockNumber),
-    gasUsedWei: receipt.gasUsed.toString(),
+    gasUsedWei: gasUsed.toString(),
     feeWei: feeWei.toString(),
   } satisfies TransactionSummary;
 }
