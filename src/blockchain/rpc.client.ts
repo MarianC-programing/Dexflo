@@ -61,8 +61,11 @@ export function createDexfloPublicClient(options: PublicClientOptions = {}): Pub
   const effectiveRpcUrl =
     rpcUrl !== null && rpcUrl.length > 0 ? rpcUrl : NETWORKS[networkName].rpcUrl;
   const timeoutMs = options.timeoutMs ?? DEFAULT_RPC_TIMEOUT_MS;
+  if (!Number.isSafeInteger(timeoutMs) || timeoutMs <= 0) {
+    throw new Error('[rpc] "timeoutMs" debe ser un entero positivo en ms.');
+  }
 
-  const transport = http(effectiveRpcUrl, { timeout: timeoutMs });
+  const transport = http(effectiveRpcUrl, { timeout: timeoutMs, retryCount: 2 });
 
   return createPublicClient({ chain, transport });
 }

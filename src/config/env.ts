@@ -202,7 +202,9 @@ export function loadConfig(source: Readonly<NodeJS.ProcessEnv> = process.env): A
     allowMainnet,
     rpcUrl,
     headless: readEnvBoolean(source, 'HEADLESS', true),
-    isCi: readEnvBoolean(source, 'CI', false),
+    // Discriminante de cámara real: lo fija el runner de Actions (GITHUB_ACTIONS).
+    // Una CI stray local (tooling/contenedores/export manual) ya no activa el carril CI.
+    isCi: readEnvBoolean(source, 'GITHUB_ACTIONS', false),
     timeouts: {
       testMs: readEnvPositiveInt(source, 'TEST_TIMEOUT_MS', 45_000),
       navigationMs: readEnvPositiveInt(source, 'NAVIGATION_TIMEOUT_MS', 30_000),

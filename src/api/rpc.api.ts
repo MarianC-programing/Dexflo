@@ -95,6 +95,17 @@ interface RpcErrorShape {
   readonly message: string;
 }
 
+/** Excerpt acotado del mensaje del nodo para el canal de error: elimina
+ * caracteres de control (incluye CRLF y ESC) y limita la longitud; jamás
+ * repite la URL ni el cuerpo completo del nodo (regla de la cabecera). */
+// eslint-disable-next-line no-control-regex
+const CONTROL_CHAR_PATTERN = /[\u0000-\u001F\u007F-\u009F]/g;
+
+function boundedNodeMessage(message: string): string {
+  const cleaned = message.replace(CONTROL_CHAR_PATTERN, ' ').trim();
+  return cleaned.length > 96 ? `${cleaned.slice(0, 96)}…` : cleaned;
+}
+
 /** Lee {code, message} del error RPC; null si la forma no es la canónica. */
 function readRpcErrorShape(value: unknown): RpcErrorShape | null {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
@@ -142,7 +153,9 @@ export function createRpcApiClient(options: RpcApiOptions = {}): RpcApiClient {
       if (outcome.status !== 200) {
         const rpcError = readRpcErrorShape('json' in outcome ? outcome.json : undefined);
         if (rpcError !== null) {
-          throw new Error(`[rpc.api] Error RPC (código ${rpcError.code}): ${rpcError.message}`);
+          throw new Error(
+            `[rpc.api] Error RPC (código ${rpcError.code}): ${boundedNodeMessage(rpcError.message)}`,
+          );
         }
         throw new Error(`[rpc.api] El nodo respondió HTTP ${outcome.status} sin cuerpo JSON.`);
       }

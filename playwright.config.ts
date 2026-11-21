@@ -39,7 +39,8 @@ export default defineConfig({
   use: {
     // Determinismo: idioma y zona horaria fijos, no depende de la máquina.
     headless: env.headless,
-    baseURL: env.baseUrl,
+    // El carril sandbox no navega con BASE_URL: no montar el default vivo.
+    baseURL: env.dappTarget === 'uniswap' ? env.baseUrl : undefined,
     locale: 'en-US',
     timezoneId: 'UTC',
 

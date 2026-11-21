@@ -122,6 +122,10 @@ export function injectEip1193Provider(bootstrap: Eip1193MockBootstrap): void {
   const errors = bootstrap.errors;
 
   const listenersByEvent = new Map<string, Set<(payload: unknown) => void>>();
+  // Mapa de suscripciones once: callback original → wrapper (para que
+  // removeListener pueda resolver la baja desde cualquiera de las dos
+  // identidades, sin depender del global vigente en cada dispatch).
+  const onceWrappers = new Map<(payload: unknown) => void, (payload: unknown) => void>();
 
   const dispatchEvent = (event: string, payload: unknown): void => {
     const listeners = listenersByEvent.get(event);
@@ -129,7 +133,13 @@ export function injectEip1193Provider(bootstrap: Eip1193MockBootstrap): void {
       return;
     }
     for (const listener of listeners) {
-      listener(payload);
+      try {
+        listener(payload);
+      } catch {
+        // Aislamiento por listener: un throw de contenido de página no corta
+        // la entrega al resto de suscriptores ni escapa del dispatch hacia
+        // el caller de emit/configure/request.
+      }
     }
   };
 
@@ -156,12 +166,16 @@ export function injectEip1193Provider(bootstrap: Eip1193MockBootstrap): void {
     return left.toLowerCase() === right.toLowerCase();
   };
 
-  const switchTargetChainId = (rawParam: unknown): string | null => {
-    if (typeof rawParam !== 'object' || rawParam === null || !('chainId' in rawParam)) {
+  // Parseo inline de chainId hex (la restricción de serialización de
+  // addInitScript impide importar toHexChainId desde src/config/networks.ts).
+  // Los códigos 4902/-32602 replican RPC_ERROR_CODES.chainUnrecognized /
+  // invalidInput de src/utils/mockData.ts, que el inyector no puede importar.
+  const parseHexChainId = (value: unknown): number | null => {
+    if (typeof value !== 'string' || !/^0[xX][0-9a-fA-F]+$/.test(value)) {
       return null;
     }
-    const chainId = rawParam.chainId;
-    return typeof chainId === 'string' ? chainId : null;
+    const parsed = Number.parseInt(value, 16);
+    return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : null;
   };
 
   /** Envuelve los datos deterministas en el payload de un receipt exitoso. */
@@ -214,28 +228,62 @@ export function injectEip1193Provider(bootstrap: Eip1193MockBootstrap): void {
           state.address = null;
           dispatchEvent('accountsChanged', []);
         }
+        // La revocación persiste: sin esto, wallet_getPermissions/wallet_requestPermissions
+        // re-derivan el permiso de autoApproveConnect y fabrican una concesión activa
+        // tras el revoke, y eth_requestAccounts re-aprueba en silencio.
+        state.autoApproveConnect = false;
         return null;
       case 'eth_chainId':
         return state.chainIdHex;
       case 'net_version':
         return state.networkVersion;
       case 'wallet_switchEthereumChain': {
-        const targetChainIdHex = switchTargetChainId(params[0]);
-        // A la misma cadena: aceptar (null). A otra: rechazar como lo hace un
-        // usuario real ⇒ la DApp permanece en "red incorrecta" (determinista).
-        if (!targetChainIdHex || sameHex(targetChainIdHex, state.chainIdHex)) {
-          return null;
+        const raw =
+          params.length > 0 && typeof params[0] === 'object' && params[0] !== null
+            ? (params[0] as { chainId?: unknown }).chainId
+            : undefined;
+        if (typeof raw !== 'string') {
+          throw providerError({ code: -32602, message: 'Invalid method parameter.' });
         }
-        throw providerError(errors.userRejected);
+        const parsed = parseHexChainId(raw);
+        if (parsed === null) {
+          throw providerError({ code: 4902, message: 'Unrecognized chain ID.' });
+        }
+        if (parsed === parseHexChainId(state.chainIdHex)) {
+          return null; // misma cadena en cualquier forma hex: éxito idempotente (comparación numérica)
+        }
+        throw providerError(errors.userRejected); // 4001: otra cadena reconocida (diseño del mock)
       }
       case 'personal_sign':
       case 'eth_sign':
-      case 'eth_signTypedData_v4':
+      case 'eth_signTypedData_v4': {
+        // Contrato :12: sin cuenta conectada ⇒ 4100 (mismo gate que wallet_*Permissions).
+        if (!state.address) {
+          throw providerError(errors.unauthorized);
+        }
+        const signerIndex = method === 'personal_sign' ? 1 : 0;
+        const signer = params[signerIndex];
+        if (typeof signer === 'string' && signer.length > 0 && !sameHex(signer, state.address)) {
+          throw providerError(errors.unauthorized);
+        }
         if (state.rejectSignature) {
           throw providerError(errors.userRejected);
         }
         return rpc.signatureHex;
-      case 'eth_sendTransaction':
+      }
+      case 'eth_sendTransaction': {
+        // Contrato :12: sin cuenta conectada ⇒ 4100; el from declarado debe ser la cuenta expuesta.
+        if (!state.address) {
+          throw providerError(errors.unauthorized);
+        }
+        const tx = params[0];
+        const from =
+          tx !== null && typeof tx === 'object' && 'from' in tx
+            ? (tx as { from?: unknown }).from
+            : null;
+        if (typeof from === 'string' && from.length > 0 && !sameHex(from, state.address)) {
+          throw providerError(errors.unauthorized);
+        }
         if (state.rejectTransaction) {
           throw providerError(errors.userRejectedTransaction);
         }
@@ -243,6 +291,7 @@ export function injectEip1193Provider(bootstrap: Eip1193MockBootstrap): void {
           throw providerError(errors.insufficientFunds);
         }
         return rpc.transactionHashHex;
+      }
       case 'eth_estimateGas':
         return rpc.estimateGasHex;
       case 'eth_gasPrice':
@@ -296,14 +345,32 @@ export function injectEip1193Provider(bootstrap: Eip1193MockBootstrap): void {
       listenersByEvent.set(event, listeners);
     },
     once: (event: string, listener: (payload: unknown) => void): void => {
+      // Captura la instancia registrante: registro y baja operan sobre el
+      // mapa dueño de la suscripción, no sobre el global vigente en cada
+      // dispatch (la reasignación de window.ethereum ya no desincroniza).
+      const owner = window.ethereum;
+      if (!owner) {
+        return;
+      }
       const wrapper = (payload: unknown): void => {
-        window.ethereum?.removeListener(event, wrapper);
+        owner.removeListener(event, wrapper);
         listener(payload);
       };
-      window.ethereum?.on(event, wrapper);
+      onceWrappers.set(listener, wrapper);
+      owner.on(event, wrapper);
     },
     removeListener: (event: string, listener: (payload: unknown) => void): void => {
-      listenersByEvent.get(event)?.delete(listener);
+      const set = listenersByEvent.get(event);
+      if (set === undefined) {
+        return;
+      }
+      const wrapper = onceWrappers.get(listener);
+      if (wrapper !== undefined) {
+        onceWrappers.delete(listener);
+        set.delete(wrapper);
+        return;
+      }
+      set.delete(listener);
     },
   };
 
