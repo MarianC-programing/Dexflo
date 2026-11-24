@@ -16,6 +16,10 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    # Ejecuta los contractuales opcionales contra servicios reales cada día a
+    # las 02:00 UTC. No bloquea push/PR: solo corre en schedule.
+    - cron: '0 2 * * *'
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -120,3 +124,27 @@ jobs:
           # señal por estado del job (un hallazgo rompe el job igualmente).
           GITLEAKS_ENABLE_COMMENTS: false
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: false
+
+  # Contractuales opcionales contra servicios reales (API real).
+  # Se ejecuta solo en schedule (cron diario), no en push/PR, así que no
+  # bloquea los pull requests. Usa CONTRACTUAL_API=1 para activar los casos
+  # contra api.coingecko.com. Sin secretos expuestos.
+  contractuales:
+    name: Contractuales (API real opt-in)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Node 20 y caché de npm
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 20
+          cache: npm
+      - name: Dependencias (npm ci)
+        run: npm ci
+      - name: Navegadores de Playwright (chromium)
+        run: npx playwright install --with-deps chromium
+      - name: Suite contractuales (API real)
+        run: CONTRACTUAL_API=1 npx playwright test tests/api/token-prices.spec.ts --grep contractual
