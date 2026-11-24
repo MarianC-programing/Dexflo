@@ -52,6 +52,13 @@ Objetivo: ser explícitos sobre qué está probado y qué no.
 Hecho cuando: el estado del adapter de Uniswap está comprobado o declarado, y
 los contractuales corren de forma periódica y aislada.
 
+Hecho: el adapter de Uniswap permanece como referencia sin verificar contra
+la UI real (selectores y `selectToken`/`txStatus` lanzan error explícito,
+documentado en la cabecera de `uniswap.adapter.ts`). Se agregó un job
+programado (cron diario `0 2 * * *`) en `.github/workflows/playwright.yml`
+que ejecuta los contractuales opcionales contra `api.coingecko.com` con
+`CONTRACTUAL_API=1`, sin secretos expuestos y sin bloquear los PR.
+
 ### Fase 10 — Módulo Haskell (`dexflo-report`)
 
 Objetivo: reportes útiles a partir de los resultados de la suite.
