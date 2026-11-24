@@ -26,7 +26,7 @@ El plan completo de fases y decisiones está en [`docs/plan.md`](docs/plan.md).
 | 5    | API y red determinista (`routes.ts`, cliente CoinGecko)                 | ✅        |
 | 6    | Suites funcionales (`@smoke`, `@e2e`, `@api`, `@web3`)                  | ✅        |
 | 7    | CI/CD (GitHub Actions) y documentación completa                         | ✅        |
-| 8    | Endurecimiento: auditoría, protección de `main`, ESLint 9               | pendiente |
+| 8    | Endurecimiento: auditoría, protección de `main`, ESLint 9               | ✅        |
 | 9    | Verificación real: adapter Uniswap y contractuales programados          | pendiente |
 | 10   | Módulo Haskell `dexflo-report` (reportes desde JUnit)                   | pendiente |
 | 11   | Dashboard estático de resultados (GitHub Pages)                         | pendiente |
