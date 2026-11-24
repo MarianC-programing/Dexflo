@@ -16,7 +16,6 @@ export interface DappFixtures {
 
 export const test = web3Test.extend<DappFixtures>({
   // Playwright exige desestructurar el primer argumento; este fixture no depende de otros.
-  // eslint-disable-next-line no-empty-pattern
   adapter: async ({}, use) => {
     await use(resolveAdapter(env.dappTarget, env.baseUrl));
   },

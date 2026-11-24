@@ -98,7 +98,6 @@ interface RpcErrorShape {
 /** Excerpt acotado del mensaje del nodo para el canal de error: elimina
  * caracteres de control (incluye CRLF y ESC) y limita la longitud; jamás
  * repite la URL ni el cuerpo completo del nodo (regla de la cabecera). */
-// eslint-disable-next-line no-control-regex
 const CONTROL_CHAR_PATTERN = /[\u0000-\u001F\u007F-\u009F]/g;
 
 function boundedNodeMessage(message: string): string {

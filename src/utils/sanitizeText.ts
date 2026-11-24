@@ -1,6 +1,4 @@
-// eslint-disable-next-line no-control-regex
 const ANSI_PATTERN = /\x1b(?:\[[0-9;]*[A-Za-z]|\][^\x07\x1b]*(?:\x07|\x1b[\\]))/g;
-// eslint-disable-next-line no-control-regex
 const CONTROL_CHARS = /[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g;
 
 /** Normaliza texto derivado de la página antes de que alcance diffs o reporters. */
