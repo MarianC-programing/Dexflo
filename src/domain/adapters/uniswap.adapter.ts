@@ -5,10 +5,12 @@
  * esta suite no depende de servicios externos en CI (docs/plan.md), por lo que
  * el target ejecutado por defecto es la sandbox. Antes de activar
  * `DAPP_TARGET=uniswap` hay que:
- *   1. validar los selectores y la URL contra la UI vigente;
+ *   1. validar los selectores y la URL contra la UI vigente de app.uniswap.org
+ *      (contacto externo; fuera del alcance de la suite CI);
  *   2. implementar `selectToken` y `txStatus` (hoy lanzan un error explícito
  *      para no fingir un comportamiento no comprobado).
- * Toda adaptación vive en este archivo; los Page Objects y los tests no cambian.
+ * Todo lo que requiere la UI real vive en este archivo; los Page Objects y
+ * los tests no cambian.
  */
 
 import type { Page } from '@playwright/test';
@@ -75,13 +77,23 @@ export function createUniswapAdapter(baseUrl: string = UNISWAP_BASE_URL): DexAda
 
     formatAddress: (address: string): string => `${address.slice(0, 5)}...${address.slice(-3)}`,
 
-    selectToken: (): Promise<void> => Promise.reject(NOT_IMPLEMENTED('selectToken')),
+    selectToken: (): Promise<void> =>
+      Promise.reject(
+        NOT_IMPLEMENTED(
+          'selectToken (falta validar en UI de Uniswap: selectores de token de entrada/salida y flujo de selección)',
+        ),
+      ),
 
     swapButtonState: async (page: Page): Promise<SwapButtonState> => {
       const text = await page.locator('[data-testid="swap-button"]').innerText();
       return mapButtonText(text);
     },
 
-    txStatus: (): Promise<TxStatus> => Promise.reject(NOT_IMPLEMENTED('txStatus')),
+    txStatus: (): Promise<TxStatus> =>
+      Promise.reject(
+        NOT_IMPLEMENTED(
+          'txStatus (falta validar en UI de Uniswap: selectores de estado/hash de transacción y mapeo de estados)',
+        ),
+      ),
   };
 }
