@@ -8,17 +8,17 @@
 
 ## Resumen de la revisión
 
-| #   | Hallazgo                                                                       | Severidad | Estado                        |
-| --- | ------------------------------------------------------------------------------ | --------- | ----------------------------- |
-| 1   | `@web3` podía consultar mainnet real por defecto (`NETWORK=mainnet`, RPC viem) | Alto      | Corregido                     |
-| 2   | `PRIVATE_KEY` se cargaba en claro y sin uso                                    | Medio     | Corregido (restringida)       |
-| 3   | `RPC_URL` sin validar; errores repetían el valor de la URL                     | Medio     | Corregido                     |
-| 4   | Trazas/vídeos de Playwright pueden contener la URL del RPC con su llave        | Medio     | Implementado (Fase 7)         |
-| 5a  | Catálogo de RPC (`networks.ts`) y cliente divergían                            | Bajo      | Corregido                     |
-| 5b  | `sameAddress` comparaba chain IDs (nombre engañoso)                            | Bajo      | Corregido (`sameHex`)         |
-| 5c  | `.gitignore` sin `*.pem`, `*.key`, `*.keystore`, `.npmrc`                      | Bajo      | Corregido                     |
-| 5d  | ESLint 8 obsoleto: 16 vulnerabilidades _moderate_ solo en devDependencies      | Bajo      | Pendiente (migrar a ESLint 9) |
-| 5e  | Sin escaneo de secretos automatizado (gitleaks)                                | Bajo      | Implementado (Fase 7)         |
+| #   | Hallazgo                                                                       | Severidad | Estado                           |
+| --- | ------------------------------------------------------------------------------ | --------- | -------------------------------- |
+| 1   | `@web3` podía consultar mainnet real por defecto (`NETWORK=mainnet`, RPC viem) | Alto      | Corregido                        |
+| 2   | `PRIVATE_KEY` se cargaba en claro y sin uso                                    | Medio     | Corregido (restringida)          |
+| 3   | `RPC_URL` sin validar; errores repetían el valor de la URL                     | Medio     | Corregido                        |
+| 4   | Trazas/vídeos de Playwright pueden contener la URL del RPC con su llave        | Medio     | Implementado (Fase 7)            |
+| 5a  | Catálogo de RPC (`networks.ts`) y cliente divergían                            | Bajo      | Corregido                        |
+| 5b  | `sameAddress` comparaba chain IDs (nombre engañoso)                            | Bajo      | Corregido (`sameHex`)            |
+| 5c  | `.gitignore` sin `*.pem`, `*.key`, `*.keystore`, `.npmrc`                      | Bajo      | Corregido                        |
+| 5d  | ESLint 8 obsoleto: 16 vulnerabilidades _moderate_ solo en devDependencies      | Bajo      | Corregido (ESLint 9 flat config) |
+| 5e  | Sin escaneo de secretos automatizado (gitleaks)                                | Bajo      | Implementado (Fase 7)            |
 
 Verificado sin hallazgos: historial de Git (2 commits, sin `.env`, claves ni
 mnemónicos), `npm audit --omit=dev` (0 vulnerabilidades), hooks de Husky (no
@@ -79,8 +79,7 @@ tag y `npm ci`.
 
 ### Mantenimiento
 
-- Migrar a ESLint 9 (flat config) para retirar la cadena `rimraf`/`flat-cache`
-  marcada por `npm audit`. Es solo de desarrollo; no afecta a la ejecución.
+- ESLint migrado a v9 (flat config): `npm audit` reporta 0 vulnerabilidades.
 - Revisar `npm audit` en cada PR.
 
 ## Cómo reportar un problema
