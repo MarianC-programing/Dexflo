@@ -75,6 +75,13 @@ Objetivo: reportes útiles a partir de los resultados de la suite.
 Hecho cuando: el CLI compila, tiene tests, su job de CI está en verde y emite
 un JSON con esquema documentado.
 
+Hecho: el código fuente del CLI `dexflo-report` está en `tools/haskell/`
+(`dexflo-report.cabal`, `src/Main.hs`, `src/Junit/`, `src/Report/`). Requiere
+instalar la toolchain (`ghcup`: GHC + cabal) para compilar, que no está
+disponible en esta máquina. El CLI lee `results/junit.xml` y genera un JSON
+con totales, resultados por tag (`@smoke`, `@e2e`, `@api`, `@web3`), tests
+lentos y comparación con la ejecución anterior.
+
 ### Fase 11 — Dashboard
 
 Objetivo: visualizar los resultados.

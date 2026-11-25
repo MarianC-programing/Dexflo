@@ -1,0 +1,32 @@
+cabal-version:      2.4
+name:               dexflo-report
+version:            0.1.0.0
+synopsis:           CLI que lee JUnit (resultados de Dexflo) y genera JSON con totales, resultados por tag, tests lentos y comparación con la corrida anterior.
+description:        Módulo aislado de Dexflo (Fase 10). Lee results/junit.xml producido por Playwright y emite un JSON con: totales, desglose por tag (@smoke, @e2e, @api, @web3), tests más lentos y comparación con la ejecución anterior.
+homepage:           https://github.com/MarianC-programing/dexflo
+license:            MIT
+license-file:       LICENSE
+author:             MarianC-programing
+maintainer:         marian@example.com
+category:           Testing
+build-type:         Simple
+extra-source-files: README.md
+
+executable dexflo-report
+  main-is:             Main.hs
+  other-modules:       Junit.Parse, Junit.Model, Report.Build, Report.Compare
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+  ghc-options:         -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints
+  build-depends:       base >= 4.12 && < 5
+                     , aeson >= 1.4 && < 2.2
+                     , bytestring >= 0.10 && < 0.12
+                     , containers >= 0.6 && < 0.7
+                     , filepath >= 1.4 && < 1.5
+                     , text >= 1.2 && < 2.1
+                     , time >= 1.8 && < 1.11
+                     , xml-conduit >= 1.8 && < 1.10
+                     , xml-types >= 0.3 && < 0.4
+
+  default-extensions: OverloadedStrings
+                     , RecordWildCards

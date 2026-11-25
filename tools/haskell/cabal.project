@@ -1,0 +1,3 @@
+packages: .
+constraint: aeson >= 1.4 && < 2.2
+constraint: xml-conduit >= 1.8 && < 1.10
