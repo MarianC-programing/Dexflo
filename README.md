@@ -28,7 +28,7 @@ El plan completo de fases y decisiones está en [`docs/plan.md`](docs/plan.md).
 | 7    | CI/CD (GitHub Actions) y documentación completa                         | ✅        |
 | 8    | Endurecimiento: auditoría, protección de `main`, ESLint 9               | ✅        |
 | 9    | Verificación real: adapter Uniswap y contractuales programados          | ✅        |
-| 10   | Módulo Haskell `dexflo-report` (reportes desde JUnit)                   | pendiente |
+| 10   | Módulo Haskell `dexflo-report` (reportes desde JUnit)                   | ✅        |
 | 11   | Dashboard estático de resultados (GitHub Pages)                         | pendiente |
 
 Las fases 8 a 11 están detalladas en [`docs/ROADMAP.md`](docs/ROADMAP.md).
