@@ -17,19 +17,19 @@ El plan completo de fases y decisiones está en [`docs/plan.md`](docs/plan.md).
 
 ## Estado del framework
 
-| Fase | Alcance                                                                 | Estado    |
-| ---- | ----------------------------------------------------------------------- | --------- |
-| 1    | Base del proyecto, tooling de calidad, config de Playwright             | ✅        |
-| 2    | Config de entorno y datos deterministas (`env`, `networks`, `mockData`) | ✅        |
-| 3    | Wallet EIP-1193 simulada + capa blockchain (viem)                       | ✅        |
-| 4    | Page Objects, adapters y sandbox DEX local                              | ✅        |
-| 5    | API y red determinista (`routes.ts`, cliente CoinGecko)                 | ✅        |
-| 6    | Suites funcionales (`@smoke`, `@e2e`, `@api`, `@web3`)                  | ✅        |
-| 7    | CI/CD (GitHub Actions) y documentación completa                         | ✅        |
-| 8    | Endurecimiento: auditoría, protección de `main`, ESLint 9               | ✅        |
-| 9    | Verificación real: adapter Uniswap y contractuales programados          | ✅        |
-| 10   | Módulo Haskell `dexflo-report` (reportes desde JUnit)                   | ✅        |
-| 11   | Dashboard estático de resultados (GitHub Pages)                         | pendiente |
+| Fase | Alcance                                                                 | Estado |
+| ---- | ----------------------------------------------------------------------- | ------ |
+| 1    | Base del proyecto, tooling de calidad, config de Playwright             | ✅     |
+| 2    | Config de entorno y datos deterministas (`env`, `networks`, `mockData`) | ✅     |
+| 3    | Wallet EIP-1193 simulada + capa blockchain (viem)                       | ✅     |
+| 4    | Page Objects, adapters y sandbox DEX local                              | ✅     |
+| 5    | API y red determinista (`routes.ts`, cliente CoinGecko)                 | ✅     |
+| 6    | Suites funcionales (`@smoke`, `@e2e`, `@api`, `@web3`)                  | ✅     |
+| 7    | CI/CD (GitHub Actions) y documentación completa                         | ✅     |
+| 8    | Endurecimiento: auditoría, protección de `main`, ESLint 9               | ✅     |
+| 9    | Verificación real: adapter Uniswap y contractuales programados          | ✅     |
+| 10   | Módulo Haskell `dexflo-report` (reportes desde JUnit)                   | ✅     |
+| 11   | Dashboard estático de resultados (GitHub Pages)                         | ✅     |
 
 Las fases 8 a 11 están detalladas en [`docs/ROADMAP.md`](docs/ROADMAP.md).
 

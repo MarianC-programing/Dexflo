@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dexflo — Resultados de pruebas</title>
+  <style>
+    /* ===== Diseño basado en docs/FrontEnd.md — paleta original de Dexflo ===== */
+    :root {
+      --bg: #070908;
+      --bg-secondary: #0b0e0d;
+      --panel: #101413;
+      --border: #242a27;
+      --text: #e8e9e4;
+      --text-muted: #8a918c;
+      --emerald: #18b978;
+      --lime: #c8f34a;
+      --yellow: #f2c94c;
+      --purple: #9b5de5;
+      --cyan: #38bdf8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    body { background: var(--bg); color: var(--text); }
+
+    /* Announcement strip */
+    .announcement {
+      background: #101413;
+      border-bottom: 1px solid var(--border);
+      padding: 6px 24px;
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .announcement .label {
+      color: var(--emerald);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+
+    /* Header */
+    header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .brand .mark {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--emerald), var(--lime));
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #070908;
+      font-weight: 900;
+      font-size: 14px;
+    }
+    nav { display: flex; gap: 24px; }
+    nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    nav a:hover { color: var(--text); }
+    nav a.active { color: var(--emerald); }
+
+    /* Main container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    /* Section heading */
+    .section {
+      margin-bottom: 40px;
+    }
+    .section h2 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+    .section h2 .accent {
+      color: var(--lime);
+    }
+
+    /* Metrics bar */
+    .metrics-bar {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      display: flex;
+      gap: 24px;
+      margin-bottom: 40px;
+      background: var(--panel);
+    }
+    .metric {
+      flex: 1;
+    }
+    .metric .value {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.03em;
+    }
+    .metric .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .metric .delta {
+      font-size: 12px;
+      margin-top: 2px;
+      font-weight: 600;
+    }
+    .delta.up { color: var(--emerald); }
+    .delta.down { color: #f43f5e; }
+    .delta.neutral { color: var(--text-muted); }
+
+    /* Cards grid */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .card .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    .tag-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .tag-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 8px;
+      border-radius: 6px;
+      background: #070908;
+      font-size: 13px;
+    }
+    .tag-name { color: var(--text-muted); }
+    .tag-stats { display: flex; gap: 12px; font-size: 12px; font-weight: 600; }
+    .tag-stats .passed { color: var(--emerald); }
+    .tag-stats .failed { color: #f43f5e; }
+    .tag-stats .total { color: var(--text-muted); }
+
+    /* Slow tests */
+    .slow-tests {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .slow-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .slow-card .name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+    .slow-card .time {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .slow-card .tags {
+      display: flex;
+      gap: 6px;
+    }
+    .slow-card .tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    /* Table */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th {
+      text-align: left;
+      padding: 12px 16px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+      background: #0b0e0d;
+    }
+    td {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #0b0e0d; }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .status-passed {
+      background: rgba(24, 185, 120, 0.15);
+      color: var(--emerald);
+      border: 1px solid rgba(24, 185, 120, 0.3);
+    }
+    .status-failed {
+      background: rgba(244, 63, 94, 0.15);
+      color: #f43f5e;
+      border: 1px solid rgba(244, 63, 94, 0.3);
+    }
+    .status-skipped {
+      background: rgba(242, 201, 76, 0.15);
+      color: #f2c94c;
+      border: 1px solid rgba(242, 201, 76, 0.3);
+    }
+    .file-ref {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+    .footer-brand {
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--text-muted);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container { padding: 16px; }
+      .metrics-bar { flex-direction: column; gap: 16px; }
+      .metrics-bar .metric { flex: none; width: 100%; }
+      nav { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Announcement strip -->
+  <div class="announcement">
+    <span class="label">Dexflo v0.1.0</span>
+    <span>Última corrida: 27 nov 2026 · 82 pruebas · 0 fallos</span>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="mark">DX</div>
+      <span>Dexflo</span>
+    </div>
+    <nav>
+      <a href="#" class="active">Dashboard</a>
+      <a href="#">Pruebas</a>
+      <a href="#">Tags</a>
+      <a href="#">Lento</a>
+    </nav>
+  </header>
+
+  <div class="container">
+
+    <!-- Hero / Hero minimal -->
+    <div class="section">
+      <h1>Dexflo <span class="accent">Resultados</span></h1>
+      <p style="color: var(--text-muted); font-size: 15px; max-width: 600px;">
+        Panel de resultados de la suite de pruebas E2E, API y Web3. Determinista, sin red real, lista para CI/CD.
+      </p>
+    </div>
+
+    <!-- Metrics bar -->
+    <div class="metrics-bar">
+      <div class="metric">
+        <div class="value" id="metric-tests">82</div>
+        <div class="label">Pruebas totales</div>
+        <div class="delta neutral" id="delta-tests">—</div>
+      </div>
+      <div class="metric">
+        <div class="value" id="metric-passed">80</div>
+        <div class="label">Pasadas</div>
+        <div class="delta up" id="delta-passed">—</div>
+      </div>
+      <div class="metric">
+        <div class="value" id="metric-failed">0</div>
+        <div class="label">Falladas</div>
+        <div class="delta neutral" id="delta-failed">—</div>
+      </div>
+      <div class="metric">
+        <div class="value" id="metric-skipped">2</div>
+        <div class="label">Omitidas</div>
+        <div class="delta neutral" id="delta-skipped">—</div>
+      </div>
+      <div class="metric">
+        <div class="value" id="metric-time">11.2s</div>
+        <div class="label">Tiempo total</div>
+        <div class="delta neutral" id="delta-time">—</div>
+      </div>
+    </div>
+
+    <!-- Tags -->
+    <div class="section">
+      <h2>Resultados por <span class="accent">tag</span></h2>
+      <div class="cards" id="tags-container"></div>
+    </div>
+
+    <!-- Slow tests -->
+    <div class="section">
+      <h2>Pruebas más <span class="accent">lentas</span></h2>
+      <div class="slow-tests" id="slow-tests"></div>
+    </div>
+
+    <!-- Details table -->
+    <div class="section">
+      <h2>Detalle de <span class="accent">pruebas</span></h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 40%;">Prueba</th>
+              <th style="width: 10%;">Estado</th>
+              <th style="width: 12%;">Tiempo</th>
+              <th style="width: 16%;">Etiquetas</th>
+              <th style="width: 22%;">Archivo</th>
+            </tr>
+          </thead>
+          <tbody id="tests-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <span class="brand" style="font-size: 16px;">
+      <div class="mark" style="width: 24px; height: 24px; font-size: 12px;">DX</div>
+      Dexflo
+    </span>
+    <span>Framework de pruebas E2E y API para DApps Web3 · Determinista · Sin secretos en CI</span>
+  </footer>
+
+  <script>
+    // Cargar datos del JSON (mock o real)
+    async function loadData() {
+      try {
+        const response = await fetch('data/mock.json');
+        const data = await response.json();
+        render(data);
+      } catch (err) {
+        console.error('No se pudo cargar el JSON:', err);
+        renderEmpty();
+      }
+    }
+
+    function renderEmpty() {
+      document.getElementById('tags-container').innerHTML =
+        '<div class="empty">No hay datos de etiquetas disponibles.</div>';
+      document.getElementById('slow-tests').innerHTML =
+        '<div class="empty">No hay datos de pruebas lentas.</div>';
+      document.getElementById('tests-table-body').innerHTML =
+        '<tr><td colspan="5" style="text-align:center; color: var(--text-muted); padding: 24px;">No hay datos de pruebas disponibles.</td></tr>';
+    }
+
+    function formatTime(seconds) {
+      if (seconds == null) return '—';
+      if (seconds < 1) return (seconds * 1000).toFixed(0) + ' ms';
+      return seconds.toFixed(2) + ' s';
+    }
+
+    function formatDelta(current, previous) {
+      if (previous == null) return '';
+      const diff = current - previous;
+      const pct = previous === 0 ? 0 : ((diff / previous) * 100).toFixed(0);
+      const absDiff = Math.abs(diff);
+      const sign = diff > 0 ? '+' : diff < 0 ? '−' : '';
+      const cls = diff > 0 ? 'up' : diff < 0 ? 'down' : 'neutral';
+      return `<span class="delta ${cls}">${sign}${absDiff.toFixed(0)} (${pct}%)</span>`;
+    }
+
+    function render(data) {
+      // Métricas principales
+      document.getElementById('metric-tests').textContent = data.tests;
+      document.getElementById('metric-passed').textContent = data.passed;
+      document.getElementById('metric-failed').textContent = data.failed;
+      document.getElementById('metric-skipped').textContent = data.skipped;
+      document.getElementById('metric-time').textContent = formatTime(data.time_seconds);
+
+      // Deltas con corrida anterior
+      if (data.previous) {
+        const p = data.previous;
+        document.getElementById('delta-tests').innerHTML = formatDelta(data.tests, p.tests);
+        document.getElementById('delta-passed').innerHTML = formatDelta(data.passed, p.passed);
+        document.getElementById('delta-failed').innerHTML = formatDelta(data.failed, p.failed);
+        document.getElementById('delta-skipped').innerHTML = formatDelta(data.skipped, p.skipped);
+        document.getElementById('delta-time').innerHTML = formatDelta(data.time_seconds, p.time_seconds);
+      }
+
+      // Tags
+      const tagsContainer = document.getElementById('tags-container');
+      tagsContainer.innerHTML = data.tags.map(tag => `
+        <div class="tag-item">
+          <div>
+            <div style="font-weight: 600; color: var(--text);">${tag.tag}</div>
+          </div>
+          <div class="tag-stats">
+            <span class="passed">${tag.passed} ✓</span>
+            <span class="failed">${tag.failed} ✗</span>
+            <span class="total">${tag.tests}</span>
+          </div>
+        </div>
+      `).join('');
+
+      // Slow tests
+      const slowContainer = document.getElementById('slow-tests');
+      slowContainer.innerHTML = data.slow_tests.map(t => `
+        <div class="slow-card">
+          <div class="name">${escapeHtml(t.name)}</div>
+          <div class="time">${formatTime(t.time_seconds)}</div>
+          <div class="tags">
+            ${t.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      // Tests table
+      const tbody = document.getElementById('tests-table-body');
+      tbody.innerHTML = data.tests_details.map(t => `
+        <tr>
+          <td>${escapeHtml(t.name)}</td>
+          <td><span class="status-badge status-${t.status}">${t.status.charAt(0).toUpperCase() + t.status.slice(1)}</span></td>
+          <td>${formatTime(t.time_seconds)}</td>
+          <td>${t.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</td>
+          <td><span class="file-ref">${escapeHtml(t.file || '')}:${t.line || '—'}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    loadData();
+  </script>
+</body>
+</html>

@@ -86,12 +86,18 @@ lentos y comparación con la ejecución anterior.
 
 Objetivo: visualizar los resultados.
 
-- Sitio estático en `web/` que muestra el JSON de `dexflo-report`, publicado
+- Sitio estático en `docs/` que muestra el JSON de `dexflo-report`, publicado
   en GitHub Pages (único despliegue real del proyecto).
 - Diseño a partir de `docs/FrontEnd.md`, adaptado a un dashboard de
-  resultados. Antes de diseñar se confirman marca, logo y audiencia.
+  resultados para Dexflo (marca Dexflo, audiencia: QA, desarrolladores y
+  dueños de repositorios), con datos de ejemplo mientras no exista JSON real.
+- Dashboard accesible en https://marianc-programing.github.io/Dexflo/
 
 Hecho cuando: el dashboard se despliega desde CI y refleja la última ejecución.
+
+Hecho: el dashboard está desplegado en GitHub Pages desde `docs/`
+(https://marianc-programing.github.io/Dexflo/). Incluye datos de ejemplo
+mientras no exista JSON real del CLI `dexflo-report` (Fase 10).
 
 ## Decisiones que se mantienen
 
